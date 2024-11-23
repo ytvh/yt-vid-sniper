@@ -1,0 +1,57 @@
+import random
+import string
+import requests
+
+# YouTube Data API Key (replace with your own API key)
+API_KEY = "AIzaSyAk7as3arNWFAdN3NJSwWAMauoQ2sAq824"
+
+# Set the maximum number of attempts to0000000000
+MAX_ATTEMPTS = 199999999999999999
+
+def generate_random_string(length=11):
+    # Define the character pool: uppercase, lowercase letters, and digits
+    char_pool = string.ascii_letters + string.digits
+    
+    # Randomly choose characters from the pool and join them into a string
+    random_string = ''.join(random.choice(char_pool) for _ in range(length))
+    
+    return random_string
+
+def generate_youtube_url():
+    # Generate the random video ID
+    video_id = generate_random_string()
+    
+    # Construct the full YouTube URL
+    youtube_url = f"https://www.youtube.com/watch?v={video_id}"
+    
+    return youtube_url
+
+def check_video_exists(video_id):
+    # YouTube Data API URL to check video details
+    api_url = f"https://www.googleapis.com/youtube/v3/videos?id={video_id}&key={API_KEY}&part=snippet"
+    
+    # Make a request to the API
+    response = requests.get(api_url)
+    
+    # If the video exists, the response will contain 'items'
+    if response.status_code == 200:
+        video_data = response.json()
+        if 'items' in video_data and len(video_data['items']) > 0:
+            return True
+    return False
+
+# Initialize the attempt counter
+attempt_count = 0
+
+# Repeat the process until a working YouTube video URL is found or the max attempts are reached
+while attempt_count < MAX_ATTEMPTS:
+    video_id = generate_random_string()
+    video_url = f"https://www.youtube.com/watch?v={video_id}"
+    attempt_count += 1
+    print(f"Attempt {attempt_count}/{MAX_ATTEMPTS}: Checking URL: {video_url}")
+    
+    if check_video_exists(video_id):
+        print(f"Found working video: {video_url}")
+        break
+else:
+    print(f"Reached maximum attempts ({MAX_ATTEMPTS}) without finding a working video.")
